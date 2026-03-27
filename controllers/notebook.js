@@ -8,10 +8,11 @@ dom = require('xmldom').DOMParser
 const parser = new xml2js.Parser({ attrkey: "ATTR" });
 
 var MongoClient = require('mongodb').MongoClient;
+const mongoSanitize = require('mongo-sanitize');
 
 let xml_string = fs.readFileSync("config.xml", "utf8");
 xml_string = xml_string.replace(/>\s*/g, '>');  // Replace "> " with ">"
-xml_string = xml_string.replace(/\s*</g, '<');  // Replace "< " with "<"
+xml_string = xml_string.replace(/\s*</g, '<');  // Replace "< "
 
 var doc = new dom().parseFromString(xml_string)
 var node = null;
@@ -85,7 +86,6 @@ module.exports = {
     });
   },
   get_release: (req, res) => {
-
     var uservalue = decodeURI(req.params.release.toString())
     var xpath_result = xpath.evaluate(
       "//config/*[local-name(.)='release' and //config//release/text()='" + uservalue + "']",            // xpathExpression
@@ -128,7 +128,8 @@ module.exports = {
   },
   read_a_note: (req, res) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private')
-        Note.findOne({no: req.params.noteId}, function (err, note) {
+    const sanitizedNoteId = mongoSanitize(req.params.noteId);
+        Note.findOne({no: sanitizedNoteId}, function (err, note) {
           if (err) {
             res.send(err);
           } else {
@@ -140,7 +141,8 @@ module.exports = {
 
   update_a_note: (req, res) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private')
-        Note.findOneAndUpdate({name: req.params.noteId }, req.body, { new: true }, function (err, note) {
+    const sanitizedNoteId = mongoSanitize(req.params.noteId);
+        Note.findOneAndUpdate({name: sanitizedNoteId }, req.body, { new: true }, function (err, note) {
           if (err) {
 
             res.send(err);
@@ -155,8 +157,9 @@ module.exports = {
 
   delete_a_note: (req, res) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+    const sanitizedNoteId = mongoSanitize(req.params.noteId);
         Note.remove({
-          name: req.params.noteId
+          name: sanitizedNoteId
         }, function (err, note) {
           if (err) {
             res.send(err);
@@ -178,7 +181,7 @@ module.exports = {
       if (!err) {
         var db = client.db('node-dvws')
         var collection = db.collection('notes')
-        var search_name = req.body.search
+        var search_name = mongoSanitize(req.body.search)
         var type = 'public' //only display public notes
         var query = { $where: `this.type == '${type}' && this.name == '${search_name}'` };
         collection.find(query).toArray((err, items) => {
