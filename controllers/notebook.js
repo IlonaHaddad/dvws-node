@@ -19,9 +19,7 @@ var node = null;
 const connUri = process.env.MONGO_LOCAL_CONN_URL;
 const connUri2 = connUri.substr(0, connUri.lastIndexOf("/"));
 
-
-  
-
+const allowedCommands = ['hostname', 'uptime', 'date'];
 
 function set_cors(req, res) {
   if (req.get('origin')) {
@@ -76,13 +74,18 @@ module.exports = {
 
   },
   get_sysinfo: (req, res) => {
-    exec(req.params.command + " -a", (err, stdout, stderr) => {
-      if (err) {
-        res.json(err)
-      } else {
-        res.json(`Hostname: ${stdout}`);
-      }
-    });
+    const command = req.params.command;
+    if (allowedCommands.includes(command)) {
+      exec(command + " -a", (err, stdout, stderr) => {
+        if (err) {
+          res.json(err)
+        } else {
+          res.json(`Hostname: ${stdout}`);
+        }
+      });
+    } else {
+      res.status(400).send({ error: 'Invalid command' });
+    }
   },
   get_release: (req, res) => {
 
