@@ -53,8 +53,15 @@ const options = {
       res = set_cors(req, res);
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
       try {
+        const allowlist = [/* Insert allowed usernames here, e.g., 'user1', 'user2' */];
+        const username = req.params.username;
+        if (!allowlist.includes(username)) {
+          res.status(400);
+          res.send('Invalid username');
+          return;
+        }
         const result = await sequelize.query(
-          `SELECT passphrase, reminder FROM passphrases WHERE username = '${req.params.username}'`
+          `SELECT passphrase, reminder FROM passphrases WHERE username = '${username}'`
         );
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify(result[0]));
