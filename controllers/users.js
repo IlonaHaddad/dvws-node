@@ -83,9 +83,12 @@ module.exports = {
   },
 
   logout: (req, res) => {
-
-    res.redirect("http://" + req.params.redirect);
-      
+    const allowlist = [/* Insert allowed paths here, e.g., '/dashboard', '/home' */];
+    if (allowlist.includes(req.params.redirect)) {
+      res.redirect("http://" + req.params.redirect);
+    } else {
+      res.status(400).send('Invalid redirect path');
+    }
   },
 
 
