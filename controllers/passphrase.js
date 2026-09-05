@@ -1,5 +1,3 @@
-
-
 const jwt = require('jsonwebtoken');
 var serialize = require("node-serialize")
 const PDFDocument = require('pdfkit');
@@ -39,8 +37,8 @@ const options = {
           await sequelize.query(
             'CREATE TABLE IF NOT EXISTS `passphrases` (`username` varchar(200) NOT NULL, `passphrase` varchar(200) NOT NULL, `reminder` varchar(200) NOT NULL, `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP)'
           );
-          const saveQuery = `INSERT INTO passphrases (username, passphrase, reminder) values ('${result.user}', '${req.body.passphrase}', '${req.body.reminder}')`;
-          await sequelize.query(saveQuery);
+          const saveQuery = `INSERT INTO passphrases (username, passphrase, reminder) values (?, ?, ?)`;
+          await sequelize.query(saveQuery, { replacements: [result.user, req.body.passphrase, req.body.reminder] });
           res.send('Passphrase Saved Successfully');
         } catch (err) {
           res.status(500);
@@ -54,10 +52,11 @@ const options = {
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
       try {
         const result = await sequelize.query(
-          `SELECT passphrase, reminder FROM passphrases WHERE username = '${req.params.username}'`
+          `SELECT passphrase, reminder FROM passphrases WHERE username = ?`,
+          { replacements: [req.params.username], type: sequelize.QueryTypes.SELECT }
         );
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.write(JSON.stringify(result[0]));
+        res.write(JSON.stringify(result));
         res.end();
       } catch (err) {
         res.send(err.code);
