@@ -12,6 +12,7 @@ const User = require('../models/users');
 const path = require("path");
 const servicewsdl = fs.readFileSync(path.resolve(__dirname, "dvwsuserservice.wsdl"));
 
+const mongoSanitize = require('mongo-sanitize');
 
 router.use(bodyParser.text({ type: '*/*' }));
 router.use(function timeLogStart(req, res, next) {
@@ -51,9 +52,9 @@ router.post('/', function (req, res, next) {
     }
     var xmlDoc = libxml.parseXml(req.body, options);
     var xmlchild = xmlDoc.get('//username');
-    var username = xmlchild.text()
+    var username = mongoSanitize(xmlchild.text())
     mongoose.connect(connUri, { useNewUrlParser: true, useUnifiedTopology: true }, (err) => {
-        User.findOne({ username }, function (err, obj) {
+        User.findOne({ username: username }, function (err, obj) {
             if (obj != null) {
                 result = "User Exists:" + xmlchild.text()
                 jsonresponse = {
