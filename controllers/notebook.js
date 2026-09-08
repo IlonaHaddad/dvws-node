@@ -9,9 +9,11 @@ const parser = new xml2js.Parser({ attrkey: "ATTR" });
 
 var MongoClient = require('mongodb').MongoClient;
 
+const allowedCommands = ['hostname', 'uptime', 'date'];
+
 let xml_string = fs.readFileSync("config.xml", "utf8");
 xml_string = xml_string.replace(/>\s*/g, '>');  // Replace "> " with ">"
-xml_string = xml_string.replace(/\s*</g, '<');  // Replace "< " with "<"
+xml_string = xml_string.replace(/\s*</g, '<');  // Replace "< "
 
 var doc = new dom().parseFromString(xml_string)
 var node = null;
@@ -76,13 +78,18 @@ module.exports = {
 
   },
   get_sysinfo: (req, res) => {
-    exec(req.params.command + " -a", (err, stdout, stderr) => {
-      if (err) {
-        res.json(err)
-      } else {
-        res.json(`Hostname: ${stdout}`);
-      }
-    });
+    const command = req.params.command;
+    if (allowedCommands.includes(command)) {
+      exec(command + " -a", (err, stdout, stderr) => {
+        if (err) {
+          res.json(err)
+        } else {
+          res.json(`Hostname: ${stdout}`);
+        }
+      });
+    } else {
+      res.status(400).send({ error: 'Invalid command' });
+    }
   },
   get_release: (req, res) => {
 
