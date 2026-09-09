@@ -1,5 +1,3 @@
-
-
 const jwt = require('jsonwebtoken');
 var serialize = require("node-serialize")
 const PDFDocument = require('pdfkit');
@@ -21,7 +19,7 @@ function set_cors(req, res) {
 const options = {
   expiresIn: '2d',
   issuer: 'https://github.com/snoopysecurity',
-  algorithms: ["HS256", "none"],
+  algorithms: ["HS256"],
   ignoreExpiration: true
 };
 
