@@ -63,7 +63,7 @@ module.exports = {
         issuer: 'https://github.com/snoopysecurity',
         permissions: ["user:admin"],
         algorithms: ["HS256", "none"],
-        ignoreExpiration: true
+        ignoreExpiration: false
       };
 
     result = jwt.verify(token, process.env.JWT_SECRET, options);
