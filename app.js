@@ -40,7 +40,7 @@ const jwt = require('jsonwebtoken')
 const options = {
   expiresIn: '2d',
   issuer: 'https://github.com/snoopysecurity',
-  algorithms: ["HS256", "none"],
+  algorithms: ["HS256"],
   ignoreExpiration: true
 };
 

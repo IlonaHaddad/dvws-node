@@ -62,7 +62,7 @@ module.exports = {
         expiresIn: '2d',
         issuer: 'https://github.com/snoopysecurity',
         permissions: ["user:admin"],
-        algorithms: ["HS256", "none"],
+        algorithms: ["HS256"],
         ignoreExpiration: true
       };
 
