@@ -39,7 +39,7 @@ const options = {
   expiresIn: '2d',
   issuer: 'https://github.com/snoopysecurity',
   algorithms: ["HS256", "none"],
-  ignoreExpiration: true
+  ignoreExpiration: false
 };
 
 

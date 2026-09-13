@@ -10,7 +10,7 @@ module.exports = {
         expiresIn: '2d',
         issuer: 'https://github.com/snoopysecurity',
         algorithms: ["HS256", "none"],
-        ignoreExpiration: true
+        ignoreExpiration: false
       };
       try {
         result = jwt.verify(token, process.env.JWT_SECRET, options);
