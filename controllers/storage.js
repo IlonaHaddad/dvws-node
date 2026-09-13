@@ -23,7 +23,7 @@ module.exports = {
 
         const token = req.headers.authorization.split(' ')[1]; 
         result = jwt.verify(token, process.env.JWT_SECRET, options);
-
+        const safeUser = path.basename(result.user);
 
         if (!req.files.file || Object.keys(req.files.file).length === 0) {
             res.status(400).send('No files were uploaded.');
@@ -32,7 +32,8 @@ module.exports = {
 
 
         sampleFile = req.files.file;
-        uploadPath = __dirname + '/../public/uploads/' + result.user + "/";
+        const safeFileName = path.basename(sampleFile.name);
+        uploadPath = path.join(__dirname, '/../public/uploads/', safeUser);
 
 
         if (!fs.existsSync(uploadPath)) {
@@ -40,13 +41,13 @@ module.exports = {
         }
 
         if (typeof sampleFile.name !== 'undefined') {
-            if ( sampleFile.name.endsWith(".xml") == false ) {
+            if ( safeFileName.endsWith(".xml") == false ) {
                 res.status(400).send("Uploaded file is not an XML file.");
                 return;
             }
             }
 
-        filePath = __dirname + '/../public/uploads/' + result.user + "/" + sampleFile.name;
+        filePath = path.join(__dirname, '/../public/uploads/', safeUser, safeFileName);
 
 
         sampleFile.mv(filePath, function (err) {
@@ -61,7 +62,9 @@ module.exports = {
     fetch: (req, res) => {
         const token = req.headers.authorization.split(' ')[1]; // Bearer <token>
         result = jwt.verify(token, process.env.JWT_SECRET, options);
-        var filename = path.resolve(process.cwd() + '/public/uploads/' + result.user + "/" + req.body.filename); 
+        const safeUser = path.basename(result.user);
+        const safeFilename = path.basename(req.body.filename);
+        var filename = path.resolve(path.join(process.cwd(), 'public/uploads/', safeUser, safeFilename)); 
         res.download(filename);
           
       },
@@ -71,9 +74,9 @@ module.exports = {
         let result = {}
         const token = req.headers.authorization.split(' ')[1]; // Bearer <token>
         result = jwt.verify(token, process.env.JWT_SECRET, options);
+        const safeUser = path.basename(result.user);
 
-
-        uploadPath = __dirname + '/../public/uploads/' + "/" + result.user;
+        uploadPath = path.join(__dirname, '/../public/uploads/', safeUser);
         var resultData = [];
 
         fs.readdir(uploadPath, function (err, files) {
@@ -92,4 +95,3 @@ module.exports = {
 
     }
 };
-
