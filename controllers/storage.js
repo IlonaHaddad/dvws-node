@@ -61,7 +61,12 @@ module.exports = {
     fetch: (req, res) => {
         const token = req.headers.authorization.split(' ')[1]; // Bearer <token>
         result = jwt.verify(token, process.env.JWT_SECRET, options);
-        var filename = path.resolve(process.cwd() + '/public/uploads/' + result.user + "/" + req.body.filename); 
+        const baseDir = path.resolve(process.cwd(), 'public/uploads', result.user);
+        const requestedPath = path.resolve(baseDir, req.body.filename);
+        if (!requestedPath.startsWith(baseDir + path.sep)) {
+            return res.status(400).send('Invalid file path.');
+        }
+        var filename = requestedPath;
         res.download(filename);
           
       },
@@ -92,4 +97,3 @@ module.exports = {
 
     }
 };
-
